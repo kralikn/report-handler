@@ -26,9 +26,13 @@ async def upload_report(report: UploadFile = File(...)):
             status_code=400, detail=f"Nem sikerült beolvasni az Excel-fájlt: {e}"
         )
 
-    # 3) Példa: visszaküldjük a beolvasott sorok számát és az oszlopneveket
-    return {
-        "message": "Sikeres report feldolgozás",
-        "rows": len(df),
-        "columns": df.columns.tolist(),
-    }
+    # Táblázat konvertálása JSON formátumba
+    try:
+        data_json = df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Nem sikerült konvertálni JSON formátumba: {str(e)}",
+        )
+
+    return {"message": "Sikeres beolvasás", "data": data_json}
